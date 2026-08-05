@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>BlogSpace – Register</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+  <!-- NAVBAR -->
+  <nav class="navbar">
+    <a href="home.html" class="nav-logo">BlogSpace</a>
+    <button class="hamburger" aria-label="Toggle menu">
+      <span></span><span></span><span></span>
+    </button>
+    <ul class="nav-links">
+      <li><a href="home.html">Home</a></li>
+      <li><a href="login.html">Login</a></li>
+      <li><a href="register.html" class="btn-nav active">Get Started</a></li>
+    </ul>
+  </nav>
+
+  <!-- REGISTER FORM -->
+  <div class="auth-wrapper">
+    <div class="auth-card">
+      <h2>Create an account</h2>
+      <p class="auth-subtitle">Join BlogSpace and start writing today</p>
+
+      <form id="registerForm" novalidate>
+
+        <div class="form-group">
+          <label for="regName">Full name</label>
+          <input type="text" id="regName" placeholder="Komal Sharma" />
+          <span class="error-msg"></span>
+        </div>
+
+        <div class="form-group">
+          <label for="regUsername">Username</label>
+          <input type="text" id="regUsername" placeholder="komal_writes" maxlength="30" />
+          <div class="char-count"><span id="usernameCount">0/30</span></div>
+          <span class="error-msg"></span>
+        </div>
+
+        <div class="form-group">
+          <label for="regEmail">Email address</label>
+          <input type="email" id="regEmail" placeholder="you@example.com" />
+          <span class="error-msg"></span>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="regPassword">Password</label>
+            <input type="password" id="regPassword" placeholder="Min 6 characters" />
+            <span class="error-msg"></span>
+          </div>
+          <div class="form-group">
+            <label for="regConfirm">Confirm password</label>
+            <input type="password" id="regConfirm" placeholder="Repeat password" />
+            <span class="error-msg"></span>
+          </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-full">Create Account</button>
+
+      </form>
+
+      <div class="auth-footer">
+        Already have an account? <a href="login.html">Log in</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer>
+    <p>© 2025 BlogSpace · <a href="#">GitHub</a></p>
+  </footer>
+
+  <div class="toast"></div>
+  <script src="js/script.js"></script>
+</body>
+</html>
