@@ -1,61 +1,67 @@
 // =============================================
-//  USER ROUTES
+//  USER ROUTES - Module 4 (Supabase)
 //  Base URL: /api/users
 // =============================================
  
-const express = require('express');
-const router  = express.Router();
- 
-// Temporary in-memory storage (until Module 4 adds a real database)
-let users = [];
+const express  = require('express');
+const router   = express.Router();
+const supabase = require('../config/supabase');
  
 // ---- REGISTER ----
 // POST /api/users/register
-router.post('/register', (req, res) => {
+router.post('/register', async (req, res) => {
   const { name, username, email, password } = req.body;
  
-  // Basic validation
   if (!name || !username || !email || !password) {
     return res.status(400).json({ error: 'All fields are required.' });
   }
  
   // Check if email already exists
-  const existing = users.find(u => u.email === email);
+  const { data: existing } = await supabase
+    .from('users')
+    .select('id')
+    .eq('email', email)
+    .single();
+ 
   if (existing) {
     return res.status(400).json({ error: 'Email already registered.' });
   }
  
-  // Save user (plain text password for now — Module 6 adds hashing)
-  const newUser = {
-    id: Date.now().toString(),
-    name,
-    username,
-    email,
-    password,
-    createdAt: new Date().toISOString()
-  };
+  // Insert new user into Supabase
+  const { data, error } = await supabase
+    .from('users')
+    .insert([{ name, username, email, password }])
+    .select()
+    .single();
  
-  users.push(newUser);
+  if (error) {
+    return res.status(500).json({ error: error.message });
+  }
  
   res.status(201).json({
     message: 'User registered successfully!',
-    user: { id: newUser.id, name, username, email }
+    user: { id: data.id, name: data.name, username: data.username, email: data.email }
   });
 });
  
 // ---- LOGIN ----
 // POST /api/users/login
-router.post('/login', (req, res) => {
+router.post('/login', async (req, res) => {
   const { email, password } = req.body;
  
   if (!email || !password) {
     return res.status(400).json({ error: 'Email and password are required.' });
   }
  
-  // Find user
-  const user = users.find(u => u.email === email && u.password === password);
+  // Find user in Supabase
+  const { data: user, error } = await supabase
+    .from('users')
+    .select('*')
+    .eq('email', email)
+    .eq('password', password)
+    .single();
  
-  if (!user) {
+  if (error || !user) {
     return res.status(401).json({ error: 'Invalid email or password.' });
   }
  
@@ -65,13 +71,18 @@ router.post('/login', (req, res) => {
   });
 });
  
-// ---- GET ALL USERS (for testing only) ----
+// ---- GET ALL USERS ----
 // GET /api/users
-router.get('/', (req, res) => {
-  const safeUsers = users.map(u => ({
-    id: u.id, name: u.name, username: u.username, email: u.email
-  }));
-  res.json(safeUsers);
+router.get('/', async (req, res) => {
+  const { data, error } = await supabase
+    .from('users')
+    .select('id, name, username, email, created_at');
+ 
+  if (error) {
+    return res.status(500).json({ error: error.message });
+  }
+ 
+  res.json(data);
 });
  
 module.exports = router;
