@@ -1,121 +1,54 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Home</title>
-    <link rel="stylesheet" href="css/style.css"/>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>BlogSpace – Home</title>
+  <link rel="stylesheet" href="css/style.css" />
 </head>
 <body>
-    <nav class="navbar">
-        <a rel="home.html" class="nav-logo">Blog-Space</a>
-        <button class="Hamburger" aria-label="Toggle-menu">
-            <span></span><span></span><span></span>
-        </button>
-        <ul class="nav-links">
-            <li><a href="home.html" class="active">Home</a></li>
-            <li><a href="login.html">Login</a></li>
-            <li><a href="register.html" class="btn-nav">Get Started</a></li>
-        </ul>
-    </nav>
-    <section class="hero">
-        <h1>Ideas worth<span> sharing</span>.<br/>Stories worth reading.</h1>
-        <p>Blog space is where the minds write, share, and discover ideas that matter.</p>
-        <div class="her-actions">
-            <a href="register.html" class="btn btn-accent">Start Writing</a>
-            <a href="#latest" class="btn btn-outline" style="color:#fff;border-color:#fff;">Browse Posts</a>
-        </div>
-    </section>
-    <div class="page-wrapper" id="latest">
+ 
+  <!-- NAVBAR -->
+  <nav class="navbar">
+    <a href="home.html" class="nav-logo">BlogSpace</a>
+    <button class="hamburger" aria-label="Toggle menu">
+      <span></span><span></span><span></span>
+    </button>
+    <ul class="nav-links">
+      <li><a href="home.html" class="active">Home</a></li>
+      <li><a href="login.html">Login</a></li>
+      <li><a href="register.html" class="btn-nav">Get Started</a></li>
+    </ul>
+  </nav>
+ 
+  <!-- HERO -->
+  <section class="hero">
+    <h1>Ideas worth <span>sharing</span>.<br/>Stories worth reading.</h1>
+    <p>BlogSpace is where curious minds write, share, and discover ideas that matter.</p>
+    <div class="hero-actions">
+      <a href="register.html" class="btn btn-accent">Start Writing</a>
+      <a href="#latest" class="btn btn-outline" style="color:#fff; border-color:#fff;">Browse Posts</a>
+    </div>
+  </section>
+ 
+  <!-- BLOG GRID -->
+  <div class="page-wrapper" id="latest">
     <h2 class="section-title">Latest Posts</h2>
  
-    <div class="blog-grid">
- 
-      <!-- Card 1 -->
-      <article class="blog-card">
-        <div class="blog-card-img">🌱</div>
-        <div class="blog-card-body">
-          <span class="blog-tag">Technology</span>
-          <h3>Getting Started with Web Development in 2025</h3>
-          <p>A beginner-friendly roadmap covering HTML, CSS, JavaScript, and your first project.</p>
-          <div class="blog-card-meta">
-            <span>May 12, 2025 · 5 min read</span>
-            <a href="#" class="read-more">Read →</a>
-          </div>
-        </div>
-      </article>
- 
-      <!-- Card 2 -->
-      <article class="blog-card">
-        <div class="blog-card-img">☕</div>
-        <div class="blog-card-body">
-          <span class="blog-tag">Lifestyle</span>
-          <h3>The Morning Routine That Changed How I Work</h3>
-          <p>Small habits compounded over six months — here's what actually made a difference.</p>
-          <div class="blog-card-meta">
-            <span>Apr 28, 2025 · 4 min read</span>
-            <a href="#" class="read-more">Read →</a>
-          </div>
-        </div>
-      </article>
- 
-      <!-- Card 3 -->
-      <article class="blog-card">
-        <div class="blog-card-img">🧠</div>
-        <div class="blog-card-body">
-          <span class="blog-tag">Learning</span>
-          <h3>How to Learn Anything Faster with Spaced Repetition</h3>
-          <p>The science-backed technique that makes knowledge stick — and how to use it daily.</p>
-          <div class="blog-card-meta">
-            <span>Apr 15, 2025 · 6 min read</span>
-            <a href="#" class="read-more">Read →</a>
-          </div>
-        </div>
-      </article>
- 
-      <!-- Card 4 -->
-      <article class="blog-card">
-        <div class="blog-card-img">🚀</div>
-        <div class="blog-card-body">
-          <span class="blog-tag">Career</span>
-          <h3>Your First Internship: What No One Tells You</h3>
-          <p>Real talk about expectations, mistakes, and how to make the most of day one.</p>
-          <div class="blog-card-meta">
-            <span>Mar 30, 2025 · 7 min read</span>
-            <a href="#" class="read-more">Read →</a>
-          </div>
-        </div>
-      </article>
- 
-      <!-- Card 5 -->
-      <article class="blog-card">
-        <div class="blog-card-img">🎨</div>
-        <div class="blog-card-body">
-          <span class="blog-tag">Design</span>
-          <h3>Why White Space Is the Most Underrated Design Tool</h3>
-          <p>Clean layouts breathe. Here's how negative space does more work than you think.</p>
-          <div class="blog-card-meta">
-            <span>Mar 10, 2025 · 3 min read</span>
-            <a href="#" class="read-more">Read →</a>
-          </div>
-        </div>
-      </article>
- 
-      <!-- Card 6 -->
-      <article class="blog-card">
-        <div class="blog-card-img">📖</div>
-        <div class="blog-card-body">
-          <span class="blog-tag">Books</span>
-          <h3>5 Books That Completely Shifted My Perspective</h3>
-          <p>Not just summaries — what I actually took away and applied to my life.</p>
-          <div class="blog-card-meta">
-            <span>Feb 22, 2025 · 5 min read</span>
-            <a href="#" class="read-more">Read →</a>
-          </div>
-        </div>
-      </article>
- 
+    <!-- Loading spinner -->
+    <div id="loadingSpinner" style="text-align:center; padding:3rem; color:var(--text-muted);">
+      Loading posts...
     </div>
+ 
+    <!-- Blog grid — filled by JS -->
+    <div class="blog-grid" id="blogGrid"></div>
+ 
+    <!-- Empty state -->
+    <div id="emptyState" style="display:none; text-align:center; padding:3rem; color:var(--text-muted);">
+      <p style="font-size:2rem;">📝</p>
+      <p>No posts yet. <a href="register.html" style="color:var(--primary);">Be the first to write one!</a></p>
+    </div>
+ 
   </div>
  
   <!-- FOOTER -->
@@ -125,5 +58,6 @@
  
   <div class="toast"></div>
   <script src="js/script.js"></script>
+  <script src="js/home.js"></script>
 </body>
 </html>

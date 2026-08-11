@@ -1,5 +1,6 @@
+
 // =============================================
-//  BLOG ROUTES - Module 4 (Supabase)
+//  BLOG ROUTES - Module 5 (Full CRUD)
 //  Base URL: /api/blogs
 // =============================================
  
@@ -7,7 +8,7 @@ const express  = require('express');
 const router   = express.Router();
 const supabase = require('../config/supabase');
  
-// ---- GET ALL BLOGS ----
+// ---- GET ALL PUBLISHED BLOGS (Home page) ----
 // GET /api/blogs
 router.get('/', async (req, res) => {
   const { data, error } = await supabase
@@ -16,10 +17,20 @@ router.get('/', async (req, res) => {
     .eq('status', 'published')
     .order('created_at', { ascending: false });
  
-  if (error) {
-    return res.status(500).json({ error: error.message });
-  }
+  if (error) return res.status(500).json({ error: error.message });
+  res.json(data);
+});
  
+// ---- GET ALL BLOGS INCLUDING DRAFTS (Dashboard) ----
+// IMPORTANT: This must be BEFORE /:id route
+// GET /api/blogs/all
+router.get('/all', async (req, res) => {
+  const { data, error } = await supabase
+    .from('blogs')
+    .select('*')
+    .order('created_at', { ascending: false });
+ 
+  if (error) return res.status(500).json({ error: error.message });
   res.json(data);
 });
  
@@ -32,10 +43,7 @@ router.get('/:id', async (req, res) => {
     .eq('id', req.params.id)
     .single();
  
-  if (error || !data) {
-    return res.status(404).json({ error: 'Blog not found.' });
-  }
- 
+  if (error || !data) return res.status(404).json({ error: 'Blog not found.' });
   res.json(data);
 });
  
@@ -60,14 +68,9 @@ router.post('/', async (req, res) => {
     .select()
     .single();
  
-  if (error) {
-    return res.status(500).json({ error: error.message });
-  }
+  if (error) return res.status(500).json({ error: error.message });
  
-  res.status(201).json({
-    message: 'Blog created successfully!',
-    blog: data
-  });
+  res.status(201).json({ message: 'Blog created successfully!', blog: data });
 });
  
 // ---- UPDATE BLOG ----
@@ -77,25 +80,14 @@ router.put('/:id', async (req, res) => {
  
   const { data, error } = await supabase
     .from('blogs')
-    .update({
-      title,
-      category,
-      body,
-      status,
-      updated_at: new Date().toISOString()
-    })
+    .update({ title, category, body, status, updated_at: new Date().toISOString() })
     .eq('id', req.params.id)
     .select()
     .single();
  
-  if (error || !data) {
-    return res.status(404).json({ error: 'Blog not found or update failed.' });
-  }
+  if (error || !data) return res.status(404).json({ error: 'Blog not found or update failed.' });
  
-  res.json({
-    message: 'Blog updated successfully!',
-    blog: data
-  });
+  res.json({ message: 'Blog updated successfully!', blog: data });
 });
  
 // ---- DELETE BLOG ----
@@ -106,11 +98,10 @@ router.delete('/:id', async (req, res) => {
     .delete()
     .eq('id', req.params.id);
  
-  if (error) {
-    return res.status(500).json({ error: error.message });
-  }
+  if (error) return res.status(500).json({ error: error.message });
  
   res.json({ message: 'Blog deleted successfully!' });
 });
  
 module.exports = router;
+ 

@@ -117,81 +117,9 @@ if (registerForm) {
   });
 }
 
-// =============================================
-//  DASHBOARD PAGE
-// =============================================
-const deleteButtons = document.querySelectorAll('.delete-post');
 
-deleteButtons.forEach(btn => {
-  btn.addEventListener('click', function () {
-    const row = this.closest('.post-row');
-    if (confirm('Delete this post?')) {
-      row.style.transition = 'opacity 0.3s';
-      row.style.opacity = '0';
-      setTimeout(() => row.remove(), 300);
-      showToast('Post deleted.');
-    }
-  });
-});
 
-// =============================================
-//  CREATE BLOG PAGE
-// =============================================
-const blogForm   = document.getElementById('blogForm');
-const titleInput = document.getElementById('blogTitle');
-const titleCount = document.getElementById('titleCount');
-const bodyInput  = document.getElementById('blogBody');
-const bodyCount  = document.getElementById('bodyCount');
 
-if (titleInput && titleCount) {
-  titleInput.addEventListener('input', () => {
-    titleCount.textContent = `${titleInput.value.length}/120`;
-  });
-}
-
-if (bodyInput && bodyCount) {
-  bodyInput.addEventListener('input', () => {
-    bodyCount.textContent = `${bodyInput.value.length} characters`;
-  });
-}
-
-if (blogForm) {
-  blogForm.addEventListener('submit', function (e) {
-    e.preventDefault();
-    let valid = true;
-
-    const title    = document.getElementById('blogTitle');
-    const category = document.getElementById('blogCategory');
-    const body     = document.getElementById('blogBody');
-
-    [title, category, body].forEach(clearError);
-
-    if (!title.value.trim()) {
-      showError(title, 'Please add a title.'); valid = false;
-    }
-    if (!category.value) {
-      showError(category, 'Please select a category.'); valid = false;
-    }
-    if (!body.value.trim() || body.value.trim().length < 50) {
-      showError(body, 'Content must be at least 50 characters.'); valid = false;
-    }
-
-    if (valid) {
-      showToast('Blog post published! ✓');
-      setTimeout(() => {
-        window.location.href = 'dashboard.html';
-      }, 1500);
-    }
-  });
-
-  // Save as Draft button
-  const draftBtn = document.getElementById('saveDraft');
-  if (draftBtn) {
-    draftBtn.addEventListener('click', () => {
-      showToast('Saved as draft.');
-    });
-  }
-}
 
 // =============================================
 //  HELPERS

@@ -1,3 +1,5 @@
+
+Blog · HTML
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -7,7 +9,7 @@
   <link rel="stylesheet" href="css/style.css" />
 </head>
 <body>
-
+ 
   <!-- NAVBAR -->
   <nav class="navbar">
     <a href="home.html" class="nav-logo">BlogSpace</a>
@@ -21,27 +23,22 @@
       <li><a href="login.html">Log out</a></li>
     </ul>
   </nav>
-
+ 
   <!-- CREATE BLOG FORM -->
   <div class="create-blog-wrapper">
     <h2>Create a New Post</h2>
     <p class="page-sub">Write something worth reading.</p>
-
+ 
     <div class="blog-form">
       <form id="blogForm" novalidate>
-
+ 
         <div class="form-group">
           <label for="blogTitle">Post Title</label>
-          <input
-            type="text"
-            id="blogTitle"
-            placeholder="Give your post a compelling title…"
-            maxlength="120"
-          />
+          <input type="text" id="blogTitle" placeholder="Give your post a compelling title…" maxlength="120" />
           <div class="char-count"><span id="titleCount">0/120</span></div>
           <span class="error-msg"></span>
         </div>
-
+ 
         <div class="form-row">
           <div class="form-group">
             <label for="blogCategory">Category</label>
@@ -57,7 +54,7 @@
             </select>
             <span class="error-msg"></span>
           </div>
-
+ 
           <div class="form-group">
             <label for="blogStatus">Status</label>
             <select id="blogStatus">
@@ -66,33 +63,31 @@
             </select>
           </div>
         </div>
-
+ 
         <div class="form-group">
           <label for="blogBody">Content</label>
-          <textarea
-            id="blogBody"
-            placeholder="Start writing your post here… (minimum 50 characters)"
-          ></textarea>
+          <textarea id="blogBody" placeholder="Start writing your post here… (minimum 50 characters)"></textarea>
           <div class="char-count"><span id="bodyCount">0 characters</span></div>
           <span class="error-msg"></span>
         </div>
-
+ 
         <div style="display:flex; gap:1rem; flex-wrap:wrap; margin-top:0.5rem;">
-          <button type="submit" class="btn btn-primary">🚀 Publish Post</button>
+          <button type="submit" class="btn btn-primary" id="publishBtn">🚀 Publish Post</button>
           <button type="button" id="saveDraft" class="btn btn-outline">💾 Save Draft</button>
           <a href="dashboard.html" class="btn" style="background:#f3f4f6; color:var(--text-muted);">Cancel</a>
         </div>
-
+ 
       </form>
     </div>
   </div>
-
+ 
   <!-- FOOTER -->
   <footer>
     <p>© 2025 BlogSpace · <a href="#">GitHub</a></p>
   </footer>
-
+ 
   <div class="toast"></div>
   <script src="js/script.js"></script>
+  <script src="js/blog.js"></script>
 </body>
 </html>
