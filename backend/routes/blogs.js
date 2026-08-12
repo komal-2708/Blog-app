@@ -1,107 +1,169 @@
-
-// =============================================
-//  BLOG ROUTES - Module 5 (Full CRUD)
-//  Base URL: /api/blogs
-// =============================================
- 
-const express  = require('express');
-const router   = express.Router();
+const express = require('express');
+const router = express.Router();
 const supabase = require('../config/supabase');
- 
-// ---- GET ALL PUBLISHED BLOGS (Home page) ----
-// GET /api/blogs
+const { requireAuth } = require('../middleware/auth');
+
+// GET ALL PUBLISHED BLOGS — public Home page
 router.get('/', async (req, res) => {
   const { data, error } = await supabase
     .from('blogs')
     .select('*')
     .eq('status', 'published')
     .order('created_at', { ascending: false });
- 
-  if (error) return res.status(500).json({ error: error.message });
-  res.json(data);
+
+  if (error) {
+    return res.status(500).json({ error: error.message });
+  }
+
+  return res.json(data);
 });
- 
-// ---- GET ALL BLOGS INCLUDING DRAFTS (Dashboard) ----
-// IMPORTANT: This must be BEFORE /:id route
-// GET /api/blogs/all
-router.get('/all', async (req, res) => {
+
+// GET ONLY LOGGED-IN USER'S POSTS — protected Dashboard
+router.get('/mine', requireAuth, async (req, res) => {
   const { data, error } = await supabase
     .from('blogs')
     .select('*')
+    .eq('user_id', req.user.id)
     .order('created_at', { ascending: false });
- 
-  if (error) return res.status(500).json({ error: error.message });
-  res.json(data);
+
+  if (error) {
+    return res.status(500).json({ error: error.message });
+  }
+
+  return res.json(data);
 });
- 
-// ---- GET SINGLE BLOG ----
-// GET /api/blogs/:id
+
+// GET ONE PUBLISHED BLOG
 router.get('/:id', async (req, res) => {
   const { data, error } = await supabase
     .from('blogs')
     .select('*')
     .eq('id', req.params.id)
-    .single();
- 
-  if (error || !data) return res.status(404).json({ error: 'Blog not found.' });
-  res.json(data);
-});
- 
-// ---- CREATE BLOG ----
-// POST /api/blogs
-router.post('/', async (req, res) => {
-  const { title, category, body, status, author } = req.body;
- 
-  if (!title || !category || !body) {
-    return res.status(400).json({ error: 'Title, category, and content are required.' });
+    .eq('status', 'published')
+    .maybeSingle();
+
+  if (error) {
+    return res.status(500).json({ error: error.message });
   }
- 
-  const { data, error } = await supabase
-    .from('blogs')
-    .insert([{
-      title,
-      category,
-      body,
-      status: status || 'published',
-      author: author || 'Anonymous'
-    }])
-    .select()
-    .single();
- 
-  if (error) return res.status(500).json({ error: error.message });
- 
-  res.status(201).json({ message: 'Blog created successfully!', blog: data });
+
+  if (!data) {
+    return res.status(404).json({
+      error: 'Blog not found.'
+    });
+  }
+
+  return res.json(data);
 });
- 
-// ---- UPDATE BLOG ----
-// PUT /api/blogs/:id
-router.put('/:id', async (req, res) => {
+
+// CREATE BLOG — protected
+router.post('/', requireAuth, async (req, res) => {
   const { title, category, body, status } = req.body;
- 
+
+  if (!title?.trim() || !category || !body?.trim()) {
+    return res.status(400).json({
+      error: 'Title, category, and content are required.'
+    });
+  }
+
+  if (!['published', 'draft'].includes(status)) {
+    return res.status(400).json({
+      error: 'Invalid post status.'
+    });
+  }
+
   const { data, error } = await supabase
     .from('blogs')
-    .update({ title, category, body, status, updated_at: new Date().toISOString() })
-    .eq('id', req.params.id)
+    .insert([
+      {
+        title: title.trim(),
+        category,
+        body: body.trim(),
+        status,
+        author: req.user.name || req.user.username,
+        user_id: req.user.id
+      }
+    ])
     .select()
     .single();
- 
-  if (error || !data) return res.status(404).json({ error: 'Blog not found or update failed.' });
- 
-  res.json({ message: 'Blog updated successfully!', blog: data });
+
+  if (error) {
+    return res.status(500).json({ error: error.message });
+  }
+
+  return res.status(201).json({
+    message: 'Blog created successfully!',
+    blog: data
+  });
 });
- 
-// ---- DELETE BLOG ----
-// DELETE /api/blogs/:id
-router.delete('/:id', async (req, res) => {
-  const { error } = await supabase
+
+// UPDATE ONLY LOGGED-IN USER'S OWN BLOG
+router.put('/:id', requireAuth, async (req, res) => {
+  const { title, category, body, status } = req.body;
+
+  if (
+    !title?.trim() ||
+    !category ||
+    !body?.trim() ||
+    !['published', 'draft'].includes(status)
+  ) {
+    return res.status(400).json({
+      error: 'Title, category, content, and a valid status are required.'
+    });
+  }
+
+  const { data, error } = await supabase
+    .from('blogs')
+    .update({
+      title: title.trim(),
+      category,
+      body: body.trim(),
+      status,
+      updated_at: new Date().toISOString()
+    })
+    .eq('id', req.params.id)
+    .eq('user_id', req.user.id)
+    .select()
+    .maybeSingle();
+
+  if (error) {
+    return res.status(500).json({ error: error.message });
+  }
+
+  if (!data) {
+    return res.status(404).json({
+      error: 'Blog not found or you do not have permission to edit it.'
+    });
+  }
+
+  return res.json({
+    message: 'Blog updated successfully!',
+    blog: data
+  });
+});
+
+// DELETE ONLY LOGGED-IN USER'S OWN BLOG
+router.delete('/:id', requireAuth, async (req, res) => {
+  const { data, error } = await supabase
     .from('blogs')
     .delete()
-    .eq('id', req.params.id);
- 
-  if (error) return res.status(500).json({ error: error.message });
- 
-  res.json({ message: 'Blog deleted successfully!' });
+    .eq('id', req.params.id)
+    .eq('user_id', req.user.id)
+    .select('id')
+    .maybeSingle();
+
+  if (error) {
+    return res.status(500).json({ error: error.message });
+  }
+
+  if (!data) {
+    return res.status(404).json({
+      error: 'Blog not found or you do not have permission to delete it.'
+    });
+  }
+
+  return res.json({
+    message: 'Blog deleted successfully!'
+  });
 });
- 
+
 module.exports = router;
- 

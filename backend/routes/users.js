@@ -1,88 +1,210 @@
-// =============================================
-//  USER ROUTES - Module 4 (Supabase)
-//  Base URL: /api/users
-// =============================================
- 
-const express  = require('express');
-const router   = express.Router();
+const express = require('express');
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
 const supabase = require('../config/supabase');
- 
-// ---- REGISTER ----
-// POST /api/users/register
+const { requireAuth } = require('../middleware/auth');
+
+const router = express.Router();
+
+function publicUser(user) {
+  return {
+    id: user.id,
+    name: user.name,
+    username: user.username,
+    email: user.email
+  };
+}
+
+function createToken(user) {
+  return jwt.sign(
+    publicUser(user),
+    process.env.JWT_SECRET,
+    { expiresIn: '7d' }
+  );
+}
+
+// REGISTER
 router.post('/register', async (req, res) => {
-  const { name, username, email, password } = req.body;
- 
+  const name = req.body.name?.trim();
+  const username = req.body.username?.trim();
+  const email = req.body.email?.trim().toLowerCase();
+  const password = req.body.password;
+
   if (!name || !username || !email || !password) {
-    return res.status(400).json({ error: 'All fields are required.' });
+    return res.status(400).json({
+      error: 'All fields are required.'
+    });
   }
- 
-  // Check if email already exists
-  const { data: existing } = await supabase
+
+  if (username.length < 3) {
+    return res.status(400).json({
+      error: 'Username must be at least 3 characters.'
+    });
+  }
+
+  if (password.length < 6) {
+    return res.status(400).json({
+      error: 'Password must be at least 6 characters.'
+    });
+  }
+
+  const { data: existingEmail, error: emailError } = await supabase
     .from('users')
     .select('id')
     .eq('email', email)
-    .single();
- 
-  if (existing) {
-    return res.status(400).json({ error: 'Email already registered.' });
+    .maybeSingle();
+
+  if (emailError) {
+    return res.status(500).json({ error: emailError.message });
   }
- 
-  // Insert new user into Supabase
-  const { data, error } = await supabase
+
+  if (existingEmail) {
+    return res.status(409).json({
+      error: 'This email is already registered.'
+    });
+  }
+
+  const { data: existingUsername, error: usernameError } = await supabase
     .from('users')
-    .insert([{ name, username, email, password }])
-    .select()
-    .single();
- 
-  if (error) {
-    return res.status(500).json({ error: error.message });
+    .select('id')
+    .eq('username', username)
+    .maybeSingle();
+
+  if (usernameError) {
+    return res.status(500).json({ error: usernameError.message });
   }
- 
-  res.status(201).json({
-    message: 'User registered successfully!',
-    user: { id: data.id, name: data.name, username: data.username, email: data.email }
-  });
-});
- 
-// ---- LOGIN ----
-// POST /api/users/login
-router.post('/login', async (req, res) => {
-  const { email, password } = req.body;
- 
-  if (!email || !password) {
-    return res.status(400).json({ error: 'Email and password are required.' });
+
+  if (existingUsername) {
+    return res.status(409).json({
+      error: 'This username is already taken.'
+    });
   }
- 
-  // Find user in Supabase
+
+  const hashedPassword = await bcrypt.hash(password, 12);
+
   const { data: user, error } = await supabase
     .from('users')
-    .select('*')
-    .eq('email', email)
-    .eq('password', password)
+    .insert([
+      {
+        name,
+        username,
+        email,
+        password: hashedPassword
+      }
+    ])
+    .select('id, name, username, email')
     .single();
- 
-  if (error || !user) {
-    return res.status(401).json({ error: 'Invalid email or password.' });
+
+  if (error) {
+    return res.status(500).json({
+      error: error.message
+    });
   }
- 
-  res.status(200).json({
-    message: 'Login successful!',
-    user: { id: user.id, name: user.name, username: user.username, email: user.email }
+
+  const token = createToken(user);
+
+  return res.status(201).json({
+    message: 'Registration successful!',
+    token,
+    user: publicUser(user)
   });
 });
- 
-// ---- GET ALL USERS ----
-// GET /api/users
-router.get('/', async (req, res) => {
-  const { data, error } = await supabase
-    .from('users')
-    .select('id, name, username, email, created_at');
- 
-  if (error) {
-    return res.status(500).json({ error: error.message });
+
+// LOGIN
+router.post('/login', async (req, res) => {
+  const email = req.body.email?.trim().toLowerCase();
+  const password = req.body.password;
+
+  if (!email || !password) {
+    return res.status(400).json({
+      error: 'Email and password are required.'
+    });
   }
- 
-  res.json(data);
+
+  const { data: user, error } = await supabase
+    .from('users')
+    .select('id, name, username, email, password')
+    .eq('email', email)
+    .maybeSingle();
+
+  if (error) {
+    return res.status(500).json({
+      error: error.message
+    });
+  }
+
+  if (!user) {
+    return res.status(401).json({
+      error: 'Invalid email or password.'
+    });
+  }
+
+  const isOldPlainTextPassword = !user.password.startsWith('$2');
+
+  const validPassword = isOldPlainTextPassword
+    ? password === user.password
+    : await bcrypt.compare(password, user.password);
+
+  const isStrongPassword =
+  password.length >= 8 &&
+  /[A-Z]/.test(password) &&
+  /[a-z]/.test(password) &&
+  /\d/.test(password) &&
+  /[^A-Za-z0-9]/.test(password);
+
+  if (!isStrongPassword) {
+  return res.status(400).json({
+    error:
+      'Password must contain 8+ characters, uppercase, lowercase, number, and special symbol.'
+  });
+}
+
+  // Converts any old Module 4 plaintext password to a secure bcrypt hash.
+  if (isOldPlainTextPassword) {
+    const hashedPassword = await bcrypt.hash(password, 12);
+
+    const { error: updateError } = await supabase
+      .from('users')
+      .update({ password: hashedPassword })
+      .eq('id', user.id);
+
+    if (updateError) {
+      return res.status(500).json({
+        error: updateError.message
+      });
+    }
+  }
+
+  const token = createToken(user);
+
+  return res.json({
+    message: 'Login successful!',
+    token,
+    user: publicUser(user)
+  });
 });
- 
+
+// GET LOGGED-IN USER
+router.get('/me', requireAuth, async (req, res) => {
+  const { data: user, error } = await supabase
+    .from('users')
+    .select('id, name, username, email')
+    .eq('id', req.user.id)
+    .maybeSingle();
+
+  if (error) {
+    return res.status(500).json({
+      error: error.message
+    });
+  }
+
+  if (!user) {
+    return res.status(404).json({
+      error: 'User not found.'
+    });
+  }
+
+  return res.json({ user });
+});
+
 module.exports = router;
