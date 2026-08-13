@@ -2,7 +2,7 @@
 //  HOME PAGE - Load blogs from API
 // =============================================
  
-const API = 'http://localhost:5000/api';
+const API = '/api';
  
 const blogGrid      = document.getElementById('blogGrid');
 const loadingSpinner = document.getElementById('loadingSpinner');
