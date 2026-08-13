@@ -84,21 +84,12 @@ router.post('/register', async (req, res) => {
 
   const { data: user, error } = await supabase
     .from('users')
-    .insert([
-      {
-        name,
-        username,
-        email,
-        password: hashedPassword
-      }
-    ])
+    .insert([{ name, username, email, password: hashedPassword }])
     .select('id, name, username, email')
     .single();
 
   if (error) {
-    return res.status(500).json({
-      error: error.message
-    });
+    return res.status(500).json({ error: error.message });
   }
 
   const token = createToken(user);
@@ -128,9 +119,7 @@ router.post('/login', async (req, res) => {
     .maybeSingle();
 
   if (error) {
-    return res.status(500).json({
-      error: error.message
-    });
+    return res.status(500).json({ error: error.message });
   }
 
   if (!user) {
@@ -145,33 +134,22 @@ router.post('/login', async (req, res) => {
     ? password === user.password
     : await bcrypt.compare(password, user.password);
 
-  const isStrongPassword =
-  password.length >= 8 &&
-  /[A-Z]/.test(password) &&
-  /[a-z]/.test(password) &&
-  /\d/.test(password) &&
-  /[^A-Za-z0-9]/.test(password);
-
-  if (!isStrongPassword) {
-  return res.status(400).json({
-    error:
-      'Password must contain 8+ characters, uppercase, lowercase, number, and special symbol.'
-  });
-}
+  if (!validPassword) {
+    return res.status(401).json({
+      error: 'Invalid email or password.'
+    });
+  }
 
   // Converts any old Module 4 plaintext password to a secure bcrypt hash.
   if (isOldPlainTextPassword) {
     const hashedPassword = await bcrypt.hash(password, 12);
-
     const { error: updateError } = await supabase
       .from('users')
       .update({ password: hashedPassword })
       .eq('id', user.id);
 
     if (updateError) {
-      return res.status(500).json({
-        error: updateError.message
-      });
+      return res.status(500).json({ error: updateError.message });
     }
   }
 
@@ -193,15 +171,11 @@ router.get('/me', requireAuth, async (req, res) => {
     .maybeSingle();
 
   if (error) {
-    return res.status(500).json({
-      error: error.message
-    });
+    return res.status(500).json({ error: error.message });
   }
 
   if (!user) {
-    return res.status(404).json({
-      error: 'User not found.'
-    });
+    return res.status(404).json({ error: 'User not found.' });
   }
 
   return res.json({ user });

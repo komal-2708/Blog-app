@@ -1,6 +1,5 @@
 const API_BASE = '/api';
 
-// SESSION HELPERS
 function getAuthToken() {
   return localStorage.getItem('blogToken');
 }
@@ -20,7 +19,6 @@ function requireAuth() {
     window.location.replace('login.html');
     return false;
   }
-
   return true;
 }
 
@@ -30,10 +28,7 @@ async function authFetch(url, options = {}) {
     Authorization: `Bearer ${getAuthToken()}`
   };
 
-  const response = await fetch(url, {
-    ...options,
-    headers
-  });
+  const response = await fetch(url, { ...options, headers });
 
   if (response.status === 401) {
     clearSession();
@@ -56,23 +51,16 @@ if (hamburger && navLinks) {
 // TOAST MESSAGE
 function showToast(message, duration = 3000) {
   const toast = document.querySelector('.toast');
-
   if (!toast) return;
-
   toast.textContent = message;
   toast.classList.add('show');
-
-  setTimeout(() => {
-    toast.classList.remove('show');
-  }, duration);
+  setTimeout(() => toast.classList.remove('show'), duration);
 }
 
 // FORM ERROR HELPERS
 function showError(input, message) {
   input.classList.add('error');
-
   const errorMessage = input.parentElement.querySelector('.error-msg');
-
   if (errorMessage) {
     errorMessage.textContent = message;
     errorMessage.style.display = 'block';
@@ -81,9 +69,7 @@ function showError(input, message) {
 
 function clearError(input) {
   input.classList.remove('error');
-
   const errorMessage = input.parentElement.querySelector('.error-msg');
-
   if (errorMessage) {
     errorMessage.textContent = '';
     errorMessage.style.display = 'none';
@@ -110,7 +96,6 @@ const logoutLink = document.getElementById('logoutLink');
 if (logoutLink) {
   logoutLink.addEventListener('click', (event) => {
     event.preventDefault();
-
     clearSession();
     window.location.replace('login.html');
   });
@@ -136,22 +121,17 @@ if (loginForm) {
       valid = false;
     }
 
-    if (!isStrongPassword(password.value)) {
-  showError(
-    password,
-    'Password needs 6+ characters, uppercase, lowercase, number, and special symbol.'
-  );
-  valid = false;
-}
+    if (!password.value) {
+      showError(password, 'Password is required.');
+      valid = false;
+    }
 
     if (!valid) return;
 
     try {
       const response = await fetch(`${API_BASE}/users/login`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           email: email.value.trim(),
           password: password.value
@@ -226,9 +206,7 @@ if (registerForm) {
     try {
       const response = await fetch(`${API_BASE}/users/register`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           name: name.value.trim(),
           username: username.value.trim(),

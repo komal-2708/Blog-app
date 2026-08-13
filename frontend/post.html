@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>BlogSpace – Post</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+  <nav class="navbar">
+    <a href="home.html" class="nav-logo">BlogSpace</a>
+    <button class="hamburger" aria-label="Toggle menu">
+      <span></span><span></span><span></span>
+    </button>
+    <ul class="nav-links">
+      <li><a href="home.html">Home</a></li>
+      <li><a href="login.html">Login</a></li>
+      <li><a href="register.html" class="btn-nav">Get Started</a></li>
+    </ul>
+  </nav>
+
+  <div class="page-wrapper" style="max-width:760px;">
+    <a href="home.html" class="btn btn-outline btn-sm" style="display:inline-block; margin-bottom:1.5rem;">← Back to posts</a>
+
+    <div id="postLoading" style="text-align:center; padding:3rem; color:var(--text-muted);">
+      Loading post...
+    </div>
+
+    <div id="postNotFound" style="display:none; text-align:center; padding:3rem; color:var(--text-muted);">
+      <p style="font-size:2rem;">🔍</p>
+      <p>This post doesn't exist or isn't published.</p>
+    </div>
+
+    <article id="postArticle" style="display:none;">
+      <span class="blog-tag" id="postCategory"></span>
+      <h1 id="postTitle" style="font-family:var(--font-display); font-size:2rem; line-height:1.3; margin:0.75rem 0;"></h1>
+      <p id="postMeta" style="color:var(--text-muted); font-size:0.9rem; margin-bottom:2rem;"></p>
+      <div id="postBody" style="white-space:pre-wrap; font-size:1.05rem; line-height:1.8;"></div>
+    </article>
+  </div>
+
+  <footer>
+    <p>© 2025 BlogSpace · Built with ❤️ · <a href="#">GitHub</a></p>
+  </footer>
+
+  <div class="toast"></div>
+  <script src="js/script.js"></script>
+  <script src="js/post.js"></script>
+</body>
+</html>
