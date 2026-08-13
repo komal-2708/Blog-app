@@ -2,7 +2,7 @@
 
 A full-stack blog application where users can register, log in, and create, edit, publish, or draft their own blog posts. Anyone can browse published posts; only the author can manage their own.
 
-**Live site:** _add your deployed URL here_
+**Live site:** https://blogapp-komal.onrender.com
 
 ## Features
 
